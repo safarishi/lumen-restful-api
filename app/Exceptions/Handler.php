@@ -5,6 +5,7 @@ namespace App\Exceptions;
 use Exception;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Laravel\Lumen\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\JsonResponse;
 
 class Handler extends ExceptionHandler
 {
@@ -39,6 +40,18 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $e)
     {
-        return parent::render($request, $e);
+        $res = [
+            'error' => $e->errorType,
+            'error_description' => $e->getMessage()
+        ];
+
+        if ($code = $e->getCode()) {
+            $res['error_code'] = $code;
+        }
+        if ($uri = $e->errorUri) {
+            $res['error_uri'] = $uri;
+        }
+
+        return new JsonResponse($res, $e->httpStatusCode, $e->getHttpHeaders());
     }
 }
