@@ -29,6 +29,51 @@ class ArticleController extends CommonController
         return ['picture_news' => $pictureNews];
         // return ['picture_news' => $pictureNews, 'article_list' => $columns];
     }
+
+    /**
+     * [show description]
+     * @param  string $id 文章id
+     * @return [type]     [description]
+     */
+    public function show($id)
+    {
+        $article = $this->article()
+            ->addSelect('article_body as content')
+            ->where('article_id', $id)
+            ->first();
+
+        if ($article === null) {
+            throw new ValidationException('文章 id 参数传递错误');
+        }
+
+        // article is favoured
+        // todo
+
+        $this->origin = $article->origin;
+        $related_articles = $this->getReleatedArticles($id);
+
+        // return
+        return [
+            'article' => $article,
+            'related_articles' => $related_articles,
+        ];
+    }
+
+    /**
+     * [getReleatedArticles description]
+     * @param  string $id 文章id
+     * @return [type]     [description]
+     */
+    protected function getReleatedArticles($id)
+    {
+        return $this->article()
+            ->where('article_writer', $this->origin)
+            ->where('article_id', '<>', $id)
+            ->orderBy('article_addtime', 'desc')
+            ->take(2)
+            ->get();
+    }
+
     public function report()
     {
         return DB::connection('sqlsrv')->table('lanmu')
@@ -37,4 +82,5 @@ class ArticleController extends CommonController
             ->whereIn('lanmu_father', [113, 167, 168])
             ->get();
     }
+
 }

@@ -18,6 +18,8 @@ $app->get('/', function () use ($app) {
 $app->get('v2/reports', 'ArticleController@report');
 
 $app->group(['prefix' => 'v2'], function ($app) {
+    // 文章列表
     $app->get('articles', 'App\Http\Controllers\ArticleController@index');
+    // 文章详情
     $app->get('articles/{id}', 'App\Http\Controllers\ArticleController@show');
 });
