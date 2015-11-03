@@ -14,3 +14,5 @@
 $app->get('/', function () use ($app) {
     return $app->welcome();
 });
+
+$app->get('v2/reports', 'ArticleController@report');
