@@ -16,3 +16,8 @@ $app->get('/', function () use ($app) {
 });
 
 $app->get('v2/reports', 'ArticleController@report');
+
+$app->group(['prefix' => 'v2'], function ($app) {
+    $app->get('articles', 'App\Http\Controllers\ArticleController@index');
+    $app->get('articles/{id}', 'App\Http\Controllers\ArticleController@show');
+});
