@@ -21,8 +21,6 @@ $app = new Laravel\Lumen\Application(
 
 $app->withFacades();
 
-$app->withEloquent();
-
 /*
 |--------------------------------------------------------------------------
 | Register Container Bindings
@@ -69,6 +67,7 @@ $app->routeMiddleware([
     'csrf' => \Laravel\Lumen\Http\Middleware\VerifyCsrfToken::class,
     'oauth' => \LucaDegasperi\OAuth2Server\Middleware\OAuthMiddleware::class,
     'oauth-owner' => \LucaDegasperi\OAuth2Server\Middleware\OAuthOwnerMiddleware::class,
+    'oauth.checkClient' => \App\Http\Middleware\OauthCheckClient::class,
 ]);
 
 /*
@@ -86,6 +85,9 @@ $app->routeMiddleware([
 // $app->register(App\Providers\EventServiceProvider::class);
 $app->register(\LucaDegasperi\OAuth2Server\Storage\FluentStorageServiceProvider::class);
 $app->register(\LucaDegasperi\OAuth2Server\OAuth2ServerServiceProvider::class);
+$app->register(\Jenssegers\Mongodb\MongodbServiceProvider::class);
+
+$app->withEloquent();
 
 /*
 |--------------------------------------------------------------------------
