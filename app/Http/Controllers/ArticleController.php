@@ -83,4 +83,14 @@ class ArticleController extends CommonController
             ->get();
     }
 
+    /**
+     * [star description]
+     * @param  string $id 文章id
+     * @return [type]     [description]
+     */
+    public function star($id)
+    {
+        // need login user
+    }
+
 }

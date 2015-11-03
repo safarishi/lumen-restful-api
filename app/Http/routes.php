@@ -22,4 +22,6 @@ $app->group(['prefix' => 'v2'], function ($app) {
     $app->get('articles', 'App\Http\Controllers\ArticleController@index');
     // 文章详情
     $app->get('articles/{id}', 'App\Http\Controllers\ArticleController@show');
+    // 文章收藏
+    $app->put('articles/{id}/stars', 'App\Http\Controllers\ArticleController@star');
 });
