@@ -36,4 +36,5 @@ $app->group(['prefix' => 'v2'], function ($app) {
     $app->post('articles/{id}/comments', 'App\Http\Controllers\ArticleController@comment');
     // 文章评论列表
     $app->get('articles/{id}/comments', 'App\Http\Controllers\ArticleController@commentList');
+    $app->post('articles/{id}/comments/{comment_id}/replies', 'App\Http\Controllers\ArticleController@reply');
 });

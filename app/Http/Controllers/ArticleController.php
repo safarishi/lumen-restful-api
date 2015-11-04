@@ -15,7 +15,7 @@ class ArticleController extends CommonController
     {
         parent::__construct($authorizer);
         $this->middleware('disconnect:sqlsrv', ['only' => ['comment', 'index', 'show', 'report']]);
-        $this->middleware('disconnect:mongodb', ['only' => ['comment', 'index', 'show', 'commentList']]);
+        $this->middleware('disconnect:mongodb', ['only' => ['comment', 'index', 'show', 'commentList', 'reply']]);
         $this->middleware('oauth', ['except' => ['index', 'show', 'report', 'commentList']]);
         $this->middleware('validation.required:content', ['only' => ['comment', 'reply']]);
     }
@@ -196,6 +196,46 @@ class ArticleController extends CommonController
             ->get();
 
         return $list;
+    }
+
+    /**
+     * [reply description]
+     * @param  string $id        文章id
+     * @param  string $commentId 评论id
+     * @return array
+     */
+    public function reply($id, $commentId)
+    {
+        $uid = $this->authorizer->getResourceOwnerId();
+
+        $this->user = $this->dbRepository('mongodb', 'user')
+            ->select('avatar_url', 'display_name')
+            ->find($uid);
+
+        return $this->replyResponse($commentId);
+    }
+
+    /**
+     * [replyResponse description]
+     * @param  string $commentId 评论id
+     * @return array
+     */
+    protected function replyResponse($commentId)
+    {
+        $content = Request::input('content');
+
+        $insertData = [
+            'content'    => $content,
+            'created_at' => date('Y-m-d H:i:s'),
+            'comment_id' => $commentId,
+            'user'       => $this->user,
+        ];
+
+        $reply = $this->dbRepository('mongodb', 'reply');
+
+        $insertId = $reply->insertGetId($insertData);
+
+        return $reply->find($insertId);
     }
 
 }
