@@ -44,4 +44,5 @@ $app->group(['prefix' => 'v2', 'namespace' => 'App\Http\Controllers'], function 
     // 获取当前用户的信息
     $app->get('user', 'UserController@show');
     $app->get('user/comments', 'UserController@myComment');
+    $app->get('user/stars', 'UserController@myStar');
 });

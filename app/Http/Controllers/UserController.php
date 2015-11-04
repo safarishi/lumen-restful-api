@@ -171,4 +171,22 @@ class UserController extends CommonController
 
         return $this->handleCommentResponse($data);
     }
+
+    public function myStar()
+    {
+        $uid = $this->authorizer->getResourceOwnerId();
+
+        $user = $this->dbRepository('mongodb', 'user')->find($uid);
+
+        if (!array_key_exists('starred_articles', $user)) {
+            return [];
+        }
+
+        $articleModel = $this->article()
+            ->whereIn('article_id', $user['starred_articles']);
+
+        $this->addPagination($articleModel);
+
+        return $articleModel->get();
+    }
 }
