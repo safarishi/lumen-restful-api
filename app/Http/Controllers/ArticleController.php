@@ -15,8 +15,8 @@ class ArticleController extends CommonController
     {
         parent::__construct($authorizer);
         $this->middleware('disconnect:sqlsrv', ['only' => ['comment', 'index', 'show', 'report']]);
-        $this->middleware('disconnect:mongodb', ['only' => ['comment', 'index', 'show']]);
-        $this->middleware('oauth', ['except' => ['index', 'show', 'report']]);
+        $this->middleware('disconnect:mongodb', ['only' => ['comment', 'index', 'show', 'commentList']]);
+        $this->middleware('oauth', ['except' => ['index', 'show', 'report', 'commentList']]);
         $this->middleware('validation.required:content', ['only' => ['comment', 'reply']]);
     }
 
@@ -177,6 +177,25 @@ class ArticleController extends CommonController
         $insertId = $comment->insertGetId($insertData);
 
         return $comment->find($insertId);
+    }
+
+    /**
+     * [commentList description]
+     * @param  string $id 文章id
+     * @return todo
+     */
+    public function commentList($id)
+    {
+        // mongodb disconnect
+        $this->models['article_comment'] = $this->dbRepository('mongodb', 'article_comment');
+
+        $list = $this->models['article_comment']
+            ->where('article.id', $id)
+            ->orderBy('created_at', 'desc')
+            ->take(4)
+            ->get();
+
+        return $list;
     }
 
 }

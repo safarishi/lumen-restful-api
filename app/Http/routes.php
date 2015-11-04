@@ -34,4 +34,6 @@ $app->group(['prefix' => 'v2'], function ($app) {
     $app->post('user', 'App\Http\Controllers\UserController@modify');
     // 文章评论
     $app->post('articles/{id}/comments', 'App\Http\Controllers\ArticleController@comment');
+    // 文章评论列表
+    $app->get('articles/{id}/comments', 'App\Http\Controllers\ArticleController@commentList');
 });
