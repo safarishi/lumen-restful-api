@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use DB;
-use Hash;
 use Request;
 use Validator;
 use App\User;
@@ -60,7 +59,7 @@ class UserController extends CommonController
 
         $avatarUrl = '/uploads/images/avatar/default.png';
         $insertData = [
-            'password'   => Hash::make($password),
+            'password'   => bcrypt($password),
             'avatar_url' => $avatarUrl,
             'email'      => $this->email,
             'created_at' => date('Y-m-d H:i:s'),
