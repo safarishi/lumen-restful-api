@@ -14,9 +14,10 @@ class ArticleController extends CommonController
     public function __construct(Authorizer $authorizer)
     {
         parent::__construct($authorizer);
-        $this->middleware('disconnect:sqlsrv', ['only' => ['comment', 'index', 'show', 'report']]);
+        $this->middleware('disconnect:sqlsrv', ['only' => ['comment', 'index', 'show', 'report', 'team']]);
+        $this->middleware('disconnect:sqlserver', ['only' => ['product']]);
         $this->middleware('disconnect:mongodb', ['only' => ['comment', 'index', 'show', 'commentList', 'reply', 'favour', 'unfavour']]);
-        $this->middleware('oauth', ['except' => ['index', 'show', 'report', 'commentList']]);
+        $this->middleware('oauth', ['except' => ['index', 'show', 'report', 'commentList', 'product', 'report', 'team']]);
         $this->middleware('validation.required:content', ['only' => ['comment', 'reply']]);
     }
 
@@ -334,6 +335,33 @@ class ArticleController extends CommonController
             ->pull('favoured_user', [$uid]);
 
         return $this->favourResponse($commentId);
+    }
+
+    public function product()
+    {
+        echo $this->dbRepository('sqlserver', 'info')
+            ->where('info_id', 5)
+            ->first()
+            ->info_desc_cn;
+    }
+
+    public function team()
+    {
+        $teamModel = $this->dbRepository('sqlsrv', 'expert')
+            ->select('expert_id as id', 'expert_photo as avatar_url', 'expert_name as name', 'expert_title as position', 'expert_Description as description')
+            ->where('expert_language', 'zh-cn')
+            ->whereIn('expert_type', ['领导', '研究人员'])
+            ->orderBy('expert_order', 'desc');
+
+        $this->addPagination($teamModel);
+
+        $members = $teamModel->get();
+
+        foreach ($members as $member) {
+            $member->avatar_url = $this->addImagePrefixUrl($member->avatar_url);
+        }
+
+        return $members;
     }
 
 }

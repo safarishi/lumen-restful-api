@@ -15,8 +15,6 @@ $app->get('/', function () use ($app) {
     return $app->welcome();
 });
 
-$app->get('v2/reports', 'ArticleController@report');
-
 $app->group(['prefix' => 'v2', 'namespace' => 'App\Http\Controllers'], function ($app) {
     // 文章列表
     $app->get('articles', 'ArticleController@index');
@@ -45,4 +43,8 @@ $app->group(['prefix' => 'v2', 'namespace' => 'App\Http\Controllers'], function 
     $app->get('user', 'UserController@show');
     $app->get('user/comments', 'UserController@myComment');
     $app->get('user/stars', 'UserController@myStar');
+    // 产品
+    $app->get('products', 'ArticleController@product');
+    $app->get('reports', 'ArticleController@report');
+    $app->get('teams', 'ArticleController@team');
 });
