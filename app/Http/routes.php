@@ -39,4 +39,6 @@ $app->group(['prefix' => 'v2', 'namespace' => 'App\Http\Controllers'], function 
     $app->post('articles/{id}/comments/{comment_id}/replies', 'ArticleController@reply');
     $app->put('articles/{id}/comments/{comment_id}/favours', 'ArticleController@favour');
     $app->delete('articles/{id}/comments/{comment_id}/favours', 'ArticleController@unfavour');
+    // 用户退出登录
+    $app->delete('oauth/invalidate_token', 'UserController@logout');
 });

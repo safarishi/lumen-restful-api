@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use DB;
 use Hash;
 use Request;
 use Validator;
@@ -137,5 +138,14 @@ class UserController extends CommonController
         $user->save();
 
         return $this->dbRepository('mongodb', 'user')->find($uid);
+    }
+
+    public function logout()
+    {
+        $oauthAccessToken = DB::table('oauth_access_tokens');
+
+        $oauthAccessToken->where('id', $this->accessToken)->delete();
+
+        return response('', 204);
     }
 }
