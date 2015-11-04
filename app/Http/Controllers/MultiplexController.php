@@ -10,7 +10,8 @@ class MultiplexController extends Controller
     /**
      * 上传用户头像
      *
-     * @param string $uid 用户id
+     * @param string  $uid 用户id
+     * @return string      用户头像地址
      */
     public static function uploadAvatar($uid)
     {

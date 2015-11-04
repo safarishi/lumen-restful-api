@@ -124,13 +124,15 @@ class UserController extends CommonController
 
         $user = User::find($uid);
 
-        // modify avatar_url todo
-        $allowedFields = ['display_name', 'gender', 'email', 'company'];
+        $allowedFields = ['avatar_url', 'display_name', 'gender', 'email', 'company'];
 
         array_walk($allowedFields, function($item) use ($user, $uid) {
             $v = Request::input($item);
             if ($v && $item !== 'avatar_url') {
                 $user->$item = $v;
+            }
+            if (Request::hasFile('avatar_url')) {
+                $user->avatar_url = MultiplexController::uploadAvatar($uid);
             }
         });
 

@@ -88,6 +88,7 @@ $app->routeMiddleware([
 $app->register(\LucaDegasperi\OAuth2Server\Storage\FluentStorageServiceProvider::class);
 $app->register(\LucaDegasperi\OAuth2Server\OAuth2ServerServiceProvider::class);
 $app->register(\Jenssegers\Mongodb\MongodbServiceProvider::class);
+$app->register(\Intervention\Image\ImageServiceProvider::class);
 
 $app->withEloquent();
 
@@ -105,5 +106,7 @@ $app->withEloquent();
 $app->group(['namespace' => 'App\Http\Controllers'], function ($app) {
     require __DIR__.'/../app/Http/routes.php';
 });
+
+$app->configure('imagecache');
 
 return $app;
