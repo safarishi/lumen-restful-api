@@ -14,8 +14,8 @@ class ArticleController extends CommonController
     public function __construct(Authorizer $authorizer)
     {
         parent::__construct($authorizer);
-        $this->middleware('disconnect:sqlsrv', ['only' => ['comment']]);
-        $this->middleware('disconnect:mongodb', ['only' => ['comment']]);
+        $this->middleware('disconnect:sqlsrv', ['only' => ['comment', 'index', 'show', 'report']]);
+        $this->middleware('disconnect:mongodb', ['only' => ['comment', 'index', 'show']]);
         $this->middleware('oauth', ['except' => ['index', 'show', 'report']]);
         $this->middleware('validation.required:content', ['only' => ['comment', 'reply']]);
     }
@@ -97,7 +97,7 @@ class ArticleController extends CommonController
 
     public function report()
     {
-        return DB::connection('sqlsrv')->table('lanmu')
+        return $this->dbRepository('sqlsrv', 'lanmu')
             ->select('lanmu_id as id', 'lanmu_name as name')
             ->where('lanmu_language', 'zh-cn')
             ->whereIn('lanmu_father', [113, 167, 168])
