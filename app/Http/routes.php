@@ -30,4 +30,8 @@ $app->group(['prefix' => 'v2'], function ($app) {
     $app->post('users', 'App\Http\Controllers\UserController@store');
     // 用户登录
     $app->post('oauth/access_token', 'App\Http\Controllers\OauthController@postAccessToken');
+    // 修改用户信息
+    $app->post('user', 'App\Http\Controllers\UserController@modify');
+    // 文章评论
+    $app->post('articles/{id}/comments', 'App\Http\Controllers\ArticleController@comment');
 });

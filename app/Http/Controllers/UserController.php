@@ -5,14 +5,17 @@ namespace App\Http\Controllers;
 use Hash;
 use Request;
 use Validator;
+use App\User;
 use App\Exceptions\ValidationException;
+use LucaDegasperi\OAuth2Server\Authorizer;
 
 class UserController extends CommonController
 {
 
-    public function __construct()
+    public function __construct(Authorizer $authorizer)
     {
-        // $this->middleware('oauth', ['except' => 'store']);
+        parent::__construct($authorizer);
+        $this->middleware('oauth', ['except' => 'store']);
         // $this->middleware('disconnect:mongodb', ['only' => ['modify']]);
         // before middleware
         $this->middleware('oauth.checkClient', ['only' => 'store']);
@@ -67,5 +70,72 @@ class UserController extends CommonController
         $insertId = $this->models['user']->insertGetId($insertData);
 
         return $this->models['user']->find($insertId);
+    }
+
+    /**
+     * 修改用户信息前的校验
+     *
+     * @param  string $uid 用户id
+     * @return void
+     *
+     * @throws \App\Exceptions\ValidationException
+     */
+    protected function prepareModify($uid)
+    {
+        // validator
+        $validator = Validator::make(Request::all(), [
+            'email'  => 'email',
+            'gender' => 'in:男,女',
+        ]);
+        if ($validator->fails()) {
+            throw new ValidationException($validator->messages()->all());
+        }
+
+        if (Request::has('email')) {
+            $this->validateModifyEmail($uid);
+        }
+    }
+
+    /**
+     * 修改用户信息的时候校验邮箱唯一性
+     *
+     * @param  string $uid 用户id
+     * @return void
+     *
+     * @throws \App\Exceptions\ValidationException
+     */
+    protected function validateModifyEmail($uid)
+    {
+        $outcome = $this->dbRepository('mongodb', 'user')
+            ->where('_id', '<>', $uid)
+            ->where('email', Request::input('email'))
+            ->first();
+
+        if ($outcome) {
+            throw new ValidationException('邮箱已被占用');
+        }
+    }
+
+    public function modify()
+    {
+        $uid = $this->authorizer->getResourceOwnerId();
+
+        $this->prepareModify($uid);
+
+        $user = User::find($uid);
+
+        // modify avatar_url todo
+        $allowedFields = ['display_name', 'gender', 'email', 'company'];
+
+        array_walk($allowedFields, function($item) use ($user, $uid) {
+            $v = Request::input($item);
+            if ($v && $item !== 'avatar_url') {
+                $user->$item = $v;
+            }
+        });
+
+        $user->save();
+
+        return $this->dbRepository('mongodb', 'user')->find($uid);
     }
 }
