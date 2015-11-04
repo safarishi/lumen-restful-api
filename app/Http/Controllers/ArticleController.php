@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use DB;
+use Request;
 use App\Exceptions\ValidationException;
 use LucaDegasperi\OAuth2Server\Authorizer;
 use App\Exceptions\DuplicateOperationException;
@@ -13,10 +14,10 @@ class ArticleController extends CommonController
     public function __construct(Authorizer $authorizer)
     {
         parent::__construct($authorizer);
-        // $this->middleware('disconnect:sqlsrv', ['only' => ['report', 'index', 'show', 'search', 'moreArticle', 'myStar', 'team']]);
-        // $this->middleware('disconnect:mongodb', ['only' => ['favour', 'show', 'commentList', 'myComment', 'myStar', 'myInformation']]);
+        $this->middleware('disconnect:sqlsrv', ['only' => ['comment']]);
+        $this->middleware('disconnect:mongodb', ['only' => ['comment']]);
         $this->middleware('oauth', ['except' => ['index', 'show', 'report']]);
-        // $this->middleware('validation.required:content', ['only' => ['anonymousComment', 'anonymousReply', 'comment', 'reply']]);
+        $this->middleware('validation.required:content', ['only' => ['comment', 'reply']]);
     }
 
     public function index()
@@ -58,8 +59,9 @@ class ArticleController extends CommonController
             throw new ValidationException('文章 id 参数传递错误');
         }
 
-        // article is favoured
-        // todo
+        $article->thumbnail_url = $this->addImagePrefixUrl($article->thumbnail_url);
+
+        $article->is_starred = $this->checkUserArticleStar($id);
 
         $this->origin = $article->origin;
         $related_articles = $this->getReleatedArticles($id);
@@ -69,6 +71,13 @@ class ArticleController extends CommonController
             'article' => $article,
             'related_articles' => $related_articles,
         ];
+    }
+
+    protected function checkUserArticleStar($id)
+    {
+        $uid = $this->getUid();
+
+        return $this->checkUserStar($uid, $id);
     }
 
     /**
@@ -126,6 +135,48 @@ class ArticleController extends CommonController
             ->pull('starred_articles', [$id]);
 
         return response('', 204);
+    }
+
+    /**
+     * [comment description]
+     * @param  string $id 文章id
+     * @return array
+     */
+    public function comment($id)
+    {
+        $uid = $this->authorizer->getResourceOwnerId();
+
+        $this->user = $this->dbRepository('mongodb', 'user')
+            ->select('avatar_url', 'display_name')
+            ->find($uid);
+
+        return $this->commentResponse($id);
+    }
+
+    /**
+     * 文章评论返回数据
+     *
+     * @param  string $id 文章id
+     * @return array
+     */
+    protected function commentResponse($id)
+    {
+        $article = (array) $this->article()->where('article_id', $id)
+            ->select('article_id as id', 'article_writer as origin')
+            ->first();
+
+        $insertData = [
+            'content'    => Request::input('content'),
+            'created_at' => date('Y-m-d H:i:s'),
+            'article'    => $article,
+            'user'       => $this->user,
+        ];
+
+        $comment = $this->dbRepository('mongodb', 'article_comment');
+
+        $insertId = $comment->insertGetId($insertData);
+
+        return $comment->find($insertId);
     }
 
 }

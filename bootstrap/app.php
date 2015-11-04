@@ -68,6 +68,8 @@ $app->routeMiddleware([
     'oauth' => \LucaDegasperi\OAuth2Server\Middleware\OAuthMiddleware::class,
     'oauth-owner' => \LucaDegasperi\OAuth2Server\Middleware\OAuthOwnerMiddleware::class,
     'oauth.checkClient' => \App\Http\Middleware\OauthCheckClient::class,
+    'validation.required' => \App\Http\Middleware\FieldRequiredMiddleware::class,
+    'disconnect' => \App\Http\Middleware\DatabaseDisconnection::class,
 ]);
 
 /*
