@@ -46,7 +46,7 @@ class ArticleController extends CommonController
     /**
      * [show description]
      * @param  string $id 文章id
-     * @return [type]     [description]
+     * @return array
      */
     public function show($id)
     {
@@ -61,16 +61,56 @@ class ArticleController extends CommonController
 
         $article->thumbnail_url = $this->addImagePrefixUrl($article->thumbnail_url);
 
+        $this->tmpArticle = clone $article;
+        unset($this->tmpArticle->content);
+
         $article->is_starred = $this->checkUserArticleStar($id);
 
         $this->origin = $article->origin;
         $related_articles = $this->getReleatedArticles($id);
 
-        // return
+        $hotComments = $this->getHotComments($id);
+
         return [
             'article' => $article,
             'related_articles' => $related_articles,
+            'hot_comments' => $hotComments,
         ];
+    }
+
+    /**
+     * [getHotComments description]
+     * @param  string $id 文章id
+     * @return array
+     */
+    protected function getHotComments($id)
+    {
+        $hotComments = $this->dbRepository('mongodb', 'article_comment')
+            ->select('content', 'created_at', 'user', 'favoured_user')
+            ->where('article.id', $id)
+            ->orderBy('created_at', 'desc')
+            ->take(2)
+            ->get();
+
+        return $this->processCommentResponse($hotComments);
+    }
+
+    /**
+     * [processCommentResponse description]
+     * @param  array $data [description]
+     * @return array
+     */
+    protected function processCommentResponse($data)
+    {
+        $response = $this->handleCommentResponse($data);
+
+        foreach ($response as &$value) {
+            $value['article'] = $this->tmpArticle;
+            unset($value['favoured_user']);
+        }
+        unset($value);
+
+        return $response;
     }
 
     protected function checkUserArticleStar($id)
