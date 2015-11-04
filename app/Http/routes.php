@@ -43,4 +43,5 @@ $app->group(['prefix' => 'v2', 'namespace' => 'App\Http\Controllers'], function 
     $app->delete('oauth/invalidate_token', 'UserController@logout');
     // 获取当前用户的信息
     $app->get('user', 'UserController@show');
+    $app->get('user/comments', 'UserController@myComment');
 });

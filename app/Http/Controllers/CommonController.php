@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use DB;
+use Request;
 
 class CommonController extends ApiController
 {
@@ -166,6 +167,31 @@ class CommonController extends ApiController
         }
 
         return in_array($uid, $favouredUser, true);
+    }
+
+    /**
+     * 增加数据分页
+     *
+     * @param  object $model 需要分页的数据模型
+     * @return void
+     */
+    protected function addPagination($model)
+    {
+        // 第几页数据，默认为第一页
+        $page    = Request::input('page', 1);
+        // 每页显示数据条目，默认为每页20条
+        $perPage = Request::input('per_page', 20);
+        $page    = intval($page);
+        $perPage = intval($perPage);
+
+        if ($page <= 0 || !is_int($page)) {
+            $page = 1;
+        }
+        if (!is_int($perPage) || $perPage < 1 || $perPage > 100) {
+            $perPage = 20;
+        }
+        // skip -- offset , take -- limit
+        $model->skip(($page - 1) * $perPage)->take($perPage);
     }
 
 }

@@ -17,7 +17,7 @@ class UserController extends CommonController
     {
         parent::__construct($authorizer);
         $this->middleware('oauth', ['except' => 'store']);
-        $this->middleware('disconnect:mongodb', ['only' => ['show']]);
+        $this->middleware('disconnect:mongodb', ['only' => ['show', 'myComment']]);
         $this->middleware('oauth.checkClient', ['only' => 'store']);
     }
 
@@ -153,5 +153,22 @@ class UserController extends CommonController
         $uid = $this->authorizer->getResourceOwnerId();
 
         return $this->dbRepository('mongodb', 'user')->find($uid);
+    }
+
+    public function myComment()
+    {
+        $uid = $this->authorizer->getResourceOwnerId();
+
+        $this->models['article_comment'] = $this->dbRepository('mongodb', 'article_comment');
+
+        $commentModel = $this->models['article_comment']
+            ->where('user._id', $uid)
+            ->orderBy('created_at', 'desc');
+
+        $this->addPagination($commentModel);
+
+        $data = $commentModel->get();
+
+        return $this->handleCommentResponse($data);
     }
 }
