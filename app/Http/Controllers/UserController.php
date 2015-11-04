@@ -17,8 +17,7 @@ class UserController extends CommonController
     {
         parent::__construct($authorizer);
         $this->middleware('oauth', ['except' => 'store']);
-        // $this->middleware('disconnect:mongodb', ['only' => ['modify']]);
-        // before middleware
+        $this->middleware('disconnect:mongodb', ['only' => ['show']]);
         $this->middleware('oauth.checkClient', ['only' => 'store']);
     }
 
@@ -147,5 +146,12 @@ class UserController extends CommonController
         $oauthAccessToken->where('id', $this->accessToken)->delete();
 
         return response('', 204);
+    }
+
+    public function show()
+    {
+        $uid = $this->authorizer->getResourceOwnerId();
+
+        return $this->dbRepository('mongodb', 'user')->find($uid);
     }
 }

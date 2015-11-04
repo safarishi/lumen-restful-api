@@ -41,4 +41,6 @@ $app->group(['prefix' => 'v2', 'namespace' => 'App\Http\Controllers'], function 
     $app->delete('articles/{id}/comments/{comment_id}/favours', 'ArticleController@unfavour');
     // 用户退出登录
     $app->delete('oauth/invalidate_token', 'UserController@logout');
+    // 获取当前用户的信息
+    $app->get('user', 'UserController@show');
 });
