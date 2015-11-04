@@ -4,9 +4,20 @@ namespace App\Http\Controllers;
 
 use DB;
 use App\Exceptions\ValidationException;
+use LucaDegasperi\OAuth2Server\Authorizer;
 
 class ArticleController extends CommonController
 {
+
+    public function __construct(Authorizer $authorizer)
+    {
+        parent::__construct($authorizer);
+        // $this->middleware('disconnect:sqlsrv', ['only' => ['report', 'index', 'show', 'search', 'moreArticle', 'myStar', 'team']]);
+        // $this->middleware('disconnect:mongodb', ['only' => ['favour', 'show', 'commentList', 'myComment', 'myStar', 'myInformation']]);
+        $this->middleware('oauth', ['except' => ['index', 'show', 'report']]);
+        // $this->middleware('validation.required:content', ['only' => ['anonymousComment', 'anonymousReply', 'comment', 'reply']]);
+    }
+
     public function index()
     {
         $pictureNews = $this->article()
