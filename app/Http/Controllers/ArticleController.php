@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use DB;
 use App\Exceptions\ValidationException;
 use LucaDegasperi\OAuth2Server\Authorizer;
+use App\Exceptions\DuplicateOperationException;
 
 class ArticleController extends CommonController
 {
@@ -97,11 +98,34 @@ class ArticleController extends CommonController
     /**
      * [star description]
      * @param  string $id 文章id
-     * @return [type]     [description]
+     * @return array
+     *
+     * @throws \App\Exceptions\DuplicateOperationException
      */
     public function star($id)
     {
-        // need login user
+        $uid = $this->authorizer->getResourceOwnerId();
+
+        if ($this->checkUserStar($uid, $id)) {
+            throw new DuplicateOperationException('您已收藏！');
+        }
+
+        $this->models['user']
+            ->where('_id', $uid)
+            ->push('starred_articles', [$id], true);
+
+        return $this->models['user']->find($uid);
+    }
+
+    public function unstar($id)
+    {
+        $uid = $this->authorizer->getResourceOwnerId();
+
+        $this->dbRepository('mongodb', 'user')
+            ->where('_id', $uid)
+            ->pull('starred_articles', [$id]);
+
+        return response('', 204);
     }
 
 }
