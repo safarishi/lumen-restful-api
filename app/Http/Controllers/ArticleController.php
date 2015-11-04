@@ -195,7 +195,9 @@ class ArticleController extends CommonController
             ->take(4)
             ->get();
 
-        return $list;
+        $returnData = $this->handleCommentResponse($list);
+
+        return ['list' => $returnData];
     }
 
     /**
