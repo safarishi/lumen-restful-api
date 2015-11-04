@@ -17,26 +17,26 @@ $app->get('/', function () use ($app) {
 
 $app->get('v2/reports', 'ArticleController@report');
 
-$app->group(['prefix' => 'v2'], function ($app) {
+$app->group(['prefix' => 'v2', 'namespace' => 'App\Http\Controllers'], function ($app) {
     // 文章列表
-    $app->get('articles', 'App\Http\Controllers\ArticleController@index');
+    $app->get('articles', 'ArticleController@index');
     // 文章详情
-    $app->get('articles/{id}', 'App\Http\Controllers\ArticleController@show');
+    $app->get('articles/{id}', 'ArticleController@show');
     // 文章收藏
-    $app->put('articles/{id}/stars', 'App\Http\Controllers\ArticleController@star');
+    $app->put('articles/{id}/stars', 'ArticleController@star');
     // 文章取消收藏
-    $app->delete('articles/{id}/stars', 'App\Http\Controllers\ArticleController@unstar');
+    $app->delete('articles/{id}/stars', 'ArticleController@unstar');
     // 用户注册
-    $app->post('users', 'App\Http\Controllers\UserController@store');
+    $app->post('users', 'UserController@store');
     // 用户登录
-    $app->post('oauth/access_token', 'App\Http\Controllers\OauthController@postAccessToken');
+    $app->post('oauth/access_token', 'OauthController@postAccessToken');
     // 修改用户信息
-    $app->post('user', 'App\Http\Controllers\UserController@modify');
+    $app->post('user', 'UserController@modify');
     // 文章评论
-    $app->post('articles/{id}/comments', 'App\Http\Controllers\ArticleController@comment');
+    $app->post('articles/{id}/comments', 'ArticleController@comment');
     // 文章评论列表
-    $app->get('articles/{id}/comments', 'App\Http\Controllers\ArticleController@commentList');
-    $app->post('articles/{id}/comments/{comment_id}/replies', 'App\Http\Controllers\ArticleController@reply');
-    $app->put('articles/{id}/comments/{comment_id}/favours', 'App\Http\Controllers\ArticleController@favour');
-    $app->delete('articles/{id}/comments/{comment_id}/favours', 'App\Http\Controllers\ArticleController@unfavour');
+    $app->get('articles/{id}/comments', 'ArticleController@commentList');
+    $app->post('articles/{id}/comments/{comment_id}/replies', 'ArticleController@reply');
+    $app->put('articles/{id}/comments/{comment_id}/favours', 'ArticleController@favour');
+    $app->delete('articles/{id}/comments/{comment_id}/favours', 'ArticleController@unfavour');
 });
